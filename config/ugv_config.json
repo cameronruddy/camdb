@@ -1,0 +1,32 @@
+{
+    "item_path":"config/targets.txt",
+    "in_default":null,
+    "extension":null,
+    "out_default":"/media/storage/wriva_deliverables",
+    "label_config":"config/label_config.json",
+    "metadata":{
+        "version":"1.0.0",
+        "type":"ground",
+        "geolocation":"gps",
+        "site":"siteA01",
+        "exterior":true
+    },
+    "cameras":{
+        "camA001":{
+            "topic":"/camera/left/image_raw",
+            "camera_desc":"zed2-720p-1",
+            "config":"config/cameras/camA001.json"
+        },
+        "camA002":{
+            "topic":"/camera/right/image_raw",
+            "camera_desc":"zed2-720p-2",
+            "config":"config/cameras/camA002.json"
+        }
+    },
+    "label":{
+        "out_root":"default",
+        "site_name":"siteA01",
+        "site_desc":"SIT-campus",
+        "deliv_date":"240108"
+    }
+}

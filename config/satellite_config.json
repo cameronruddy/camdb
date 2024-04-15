@@ -1,0 +1,28 @@
+{
+    "item_path": "config/targets.txt",
+    "in_default":null,
+    "extension":".tif",
+    "out_default": "./sat_out",
+    "label_config":"config/label_config.json",
+    "metadata":{
+        "version": "4.2.0",
+        "type": "satellite",
+        "site": "siteA01",
+        "exterior":true
+    },
+
+    "cameras":{},
+
+    "label":{
+        "site_name": "siteA01",
+        "site_desc": "SIT-campus",
+        "deliv_date": "240108"
+    }
+
+
+
+
+
+
+
+}

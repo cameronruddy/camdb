@@ -1,0 +1,58 @@
+{
+    "version":"",
+    "fname":"",
+    "site":"",
+    "source":"",
+    "collection":"",
+    "timestamp":0.0,
+
+    "extrinsics":{
+        "lat":0.0,
+        "lon":0.0,
+        "alt":0.0,
+        "omega":0.0,
+        "phi":0.0,
+        "kappa":0.0
+    },
+
+    "intrinsics":{
+        "fx":0.0,
+        "fy":0.0,
+        "cx":0.0,
+        "cy":0.0,
+        "k1":0.0,
+        "k2":0.0,
+        "k3":0.0,
+        "p1":0.0,
+        "p2":0.0,
+        "p3":0.0,
+        "p4":0.0,
+        "C":0.0,
+        "D":0.0,
+        "E":0.0,
+        "F":0.0,
+        "rows":0.0,
+        "columns":0.0
+    },
+
+    "projection":"",
+    "calibration":"",
+    "geolocation":"",
+    "pii_status":"",
+    "env_conditions":[],
+    "type":"",
+    "modes":[],
+    "exterior":false,
+    "interior":false,
+    "transient_occlusions":[],
+    "artifacts":[],
+    "masks":{
+        "key":{
+            "rle":"",
+            "method":""
+        }
+    },
+
+    "pii_detected":[],
+    "pii_removed":[]
+}

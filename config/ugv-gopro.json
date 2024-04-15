@@ -1,0 +1,25 @@
+{
+    "item_path":"config/targets.txt",
+    "in_default": null,
+    "extension":".mp4",
+    "out_default":"/media/storage/wriva_deliverables",
+    "metadata":{
+        "version":"4.2.0",
+        "type":"ground",
+        "geolocation":"gps",
+        "site":"siteRTX0002",
+        "exterior":true
+    },
+    "cameras":{
+        "camA012":{
+            "camera_desc":"GoPro-UGV-1",
+            "config":"config/cameras/camA012"
+        }
+    },
+    "label":{
+        "out_root":"default",
+        "site_name":"siteRTX0002",
+        "site_desc":"SIT-campus",
+        "deliv_date":"240325"
+    }
+}

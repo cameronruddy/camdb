@@ -1,0 +1,10 @@
+{
+    "item_path":"config/targets.txt",
+    "extension":null,
+    "label_config":"config/label_config.json",
+    "in_default":null,
+    "out_default":"./default_out/",
+    "metadata":{},
+    "cameras":{},
+    "label":{}
+}
