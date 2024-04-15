@@ -4,165 +4,11 @@ import os, sys, json
 import dir_crawler
 import view_edit
 import color_scheme as clr
+import ioparse as io
 from data_import import bag_import, copy_import, mp42img
 from misc_tools import pii_remover, renumber_files, csv2meta, data_pruner
 
 import pdb
-
-DEFAULT_OUT = "./default_out"
-
-def handle_import(path, config, ext):
-    # Try to get root directory from import first
-    # Else, see if there is a default path in the config file
-    # If there is no valid path, exit program
-    
-    try:
-        if os.path.isdir(path):
-            targets = dir_crawler.dir_crawler(path,
-                                            os.getcwd() + "/config",
-                                            "targets.txt",
-                                            ext, 
-                                            False)
-            targets.traverse()
-            targets.reorganize()
-            targets.writeout()
-            return "config/targets.txt"
-            
-        elif os.path.isfile(path):
-            with open("config/targets.txt", 'w') as f:
-                f.write(path + '\n')
-            return "config/targets.txt"
-
-
-        else: 
-            print("{}Error{}: {}{}{} is not a file or directory".format(
-                clr.ERROR, clr.RESET,
-                clr.HIGHLIGHT, path, clr.RESET))
-            sys.exit(1)
-
-    except TypeError:
-        try:
-            with open(config, 'r') as f:
-                temp = json.load(f)
-                dpath = temp["in_default"]
-                if os.path.isdir(dpath):
-                    targets = dir_crawler.dir_crawler(dpath,
-                                                    os.getcwd() + "/config",
-                                                    "targets.txt",
-                                                    ext,
-                                                    False)
-                else:
-                    print("{}Error{}: directory identified as {}{}{} does not exist".format(
-                        clr.ERROR, clr.RESET,
-                        clr.HIGHLIGHT, dpath, clr.RESET
-                    ))
-                    sys.exit(1)
-
-        except:
-            print("{}Error{}: cannot import data. Import path found in {}{}{} as {}{}{} is not valid".format(
-                clr.ERROR, clr.RESET,
-                clr.HIGHLIGHT, config, clr.RESET,
-                clr.HIGHLIGHT, dpath, clr.RESET
-            ))
-            sys.exit(1)
-    
-    except:
-        sys.exit(1)
-
-    targets.traverse()
-    targets.reorganize()
-    targets.writeout()
-    return "config/targets.txt"
-
-def format_output(outdir):
-    # Checks to see if directories are already made and then returns path
-    if not os.path.isdir(outdir):
-        os.makedirs(outdir)
-    return outdir
-
-def handle_output(outdir, configfile):
-    # Similar to handle import
-    # If outdir is specified with -o, use that
-    # Otherwise, look for a outdir in config
-    # If no path, ask to make outdir
-
-    if outdir != None:
-        ## Chop off a / at the end
-        # For formatting into downstream functions
-
-        if outdir[-1] == '/':
-            outdir = outdir[:-1]
-
-        # Check if valid
-        if os.path.isdir(outdir):
-            print("Using output directory \"{}{}{}\"".format(
-                clr.SUCCESS, outdir, clr.RESET
-            ))
-            return outdir
-
-        # Not valid! Ask to make dirs
-        else:
-            print("{}Warning{}: \"{}{}{}\" was specified for output but no such directory exists".format(
-                clr.WARNING, clr.RESET, 
-                clr.HIGHLIGHT, outdir, clr.RESET
-            ))
-            if input("Create {}{}{} and continue? [y/n]: ".format(
-                clr.HIGHLIGHT, outdir, clr.RESET)) == 'y':
-                return format_output(outdir)
-    
-    elif configfile != None:
-        try:
-            with open(configfile, 'r') as f:
-                temp = json.load(f)
-                outdir = temp["label"]["out_default"]
-
-            if os.path.isdir(outdir):
-                print("Found default output path {}{}{} in config file {}{}{}".format(
-                    clr.HIGHLIGHT, outdir, clr.RESET,
-                    clr.HIGHLIGHT, configfile, clr.RESET
-                ))
-                if input("Continue with these settings? [y/n]: ") == 'y':
-                    return format_output(outdir)
-                
-        except KeyError as e:
-            print("{}Warning{}: No output directory found in {}{}{}".format(
-                clr.WARNING, clr.RESET,
-                clr.HIGHLIGHT, configfile, clr.RESET
-            ))
-    
-    else:
-        print("{}Warning{}: No output directory or config file was specified".format(clr.WARNING, clr.RESET))
-
-    if input("Continue import with default path {}{}{}? [y/n]: ".format(
-        clr.HIGHLIGHT, DEFAULT_OUT, clr.RESET
-    )) == 'y':
-        return format_output(DEFAULT_OUT)
-    else:
-        sys.exit(0)
-
-def handle_config(configpath):
-    # If a config file is specified, use that
-    # Otherwise, use the default
-
-    if configpath != None:
-        if os.path.isfile(configpath):
-            print("Using {}{}{} as configuration file".format(
-                clr.SUCCESS, configpath, clr.RESET
-            ))
-            return configpath
-        else:
-            print("{}Warning{}: Provided metadata file {}{}{} is not a file".format(
-            clr.WARNING, clr.RESET,
-            clr.HIGHLIGHT, configpath, clr.RESET
-            ))
-    
-    print("{}Warning{}: No configuration file provided".format(clr.WARNING, clr.RESET))
-    if input("Continue using default configuration file? [y/n]: ") == "y":
-        return "config/default.json"
-    else:
-        sys.exit(0)
-    
-    
 
 parser = argparse.ArgumentParser(
     prog="CamDB",
@@ -190,6 +36,7 @@ parser.add_argument('-c',
                     action='store'
                     )
 
+#TODO
 parser.add_argument('-d',
                     '--decimate_copy',
                     nargs=2,
@@ -264,39 +111,41 @@ args = parser.parse_args()
 ##### Data Import Modules #####
 
 # Import from bag file
-if args.bagimport != None:
+if args.bagimport:
     print("Starting import from bagfile...")
-    config_file = handle_config(args.config)
+    config_file = io.handle_config(args.config)
     if args.framestep == None:
         args.framestep = 1
 
+    targets, target_dirs = io.parse_input(args.bagimport, ".bag")
+
     reader = bag_import.bag_import(config_file, 
-                               str(handle_import(args.bagimport, config_file, ".bag")), 
-                               str(handle_output(args.outdir, config_file)),
+                               targets, 
+                               str(io.parse_output(args.outdir)),
                                args.verbose,
                                int(args.framestep))
     reader.run_belt()
 
 # Copy from existing data
-elif args.copy != None:
+elif args.copy:
     print("Starting copy import...")
-    config_file = handle_config(args.config)
+    config_file = io.handle_config(args.config)
     text, ext = os.path.splitext(args.copy)
     if ext == '':
         ext = input("Please specify image type to copy: ")
 
     copier = copy_import.copy_import(config_file,
-                                    str(handle_import(args.copy, config_file, ext)),
-                                    str(handle_output(args.outdir, config_file)),
+                                    str(io.parse_input(args.copy, ext)),
+                                    str(io.parse_output(args.outdir)),
                                     args.verbose,
                                     
     )
     copier.run_belt()
     
 # Import from mp4 files
-if args.video:
+elif args.video:
     print("Starting MP4 import...")
-    config_file = handle_config(args.config)
+    config_file = io.handle_config(args.config)
     #start_datetime = input("Please provide start datetime [YYYY-MM-DD HH:MM:SS]: ")
     if not args.framestep:
         framestep = 1
@@ -304,8 +153,8 @@ if args.video:
         framestep = args.framestep
 
     reader = mp42img.mp42img(config_file,
-                             str(handle_import(args.video, config_file, ".MP4")),
-                             str(handle_output(args.outdir, config_file)),
+                             str(io.parse_input(args.video,".MP4")),
+                             str(io.parse_output(args.outdir)),
                              args.verbose,
                              None,      # TODO: have this point to a path or user input
                              framestep
@@ -314,59 +163,56 @@ if args.video:
 
 
 ##### Metadata Modify #####
-    #TODO: Make all of this more idiot proof
+## And other fun tools ##
 
-
-if args.metadata != None:
+if args.metadata:
     paths = dir_crawler.dir_crawler(
         args.metadata,
-        os.getcwd() + "/config",
-        "targets.txt",
         ".json",
-        False
+        None
     )
-    paths.traverse()
-    paths.reorganize()
-    paths.writeout()
+    targets = paths.traverse()
     session = view_edit.view_edit(
-        "./config/targets.txt",
+        targets,
         args.verbose,
         args.metadata
     )
     session.main_loop()
 
 ## Decimate ##
-if args.decimate:
+if args.decimate_copy:
     data_path, decimation_factor = args.decimate
     session = dir_crawler.dir_crawler(data_path,
-                                      None,
-                                      None,
                                       "all",
-                                      False,
-
-    )
+                                      None
+                                    )
     session.traverse()
-    session.reorganize()
     data_dirs = session.get_dirs()
-    base_dir = handle_output(args.outdir, None)
+    base_dir = io.parse_output(args.outdir)
     run_idx = 0
     for this_dir in data_dirs:
         if args.verbose:
-            print("{}Decimating{} {}...".format(clr.HIGHLIGHT, clr.RESET, this_dir))
-        data_pruner.copy_decimate_multiple_filetypes(this_dir, decimation_factor, os.path.join(base_dir, str(run_idx)))
+            print("{}Decimating{} {}...".format(
+                clr.HIGHLIGHT, clr.RESET, this_dir))
+        data_pruner.copy_decimate_multiple_filetypes(
+            this_dir, decimation_factor, os.path.join(base_dir, str(run_idx)))
         run_idx += 1
         if args.verbose:
             print("{}Decimated{} {} by a factor of {}".format(
                 clr.SUCCESS, clr.RESET, this_dir, decimation_factor
             ))
 
-if args.removepii != None:
+if args.decimate_remove:
+    #TODO
+    pass
+
+if args.removepii:
     # TODO: make this more idiot (me) proof
     
     rmpii = pii_remover.pii_remover(args.removepii)
     rmpii.iterate(args.outdir)
 
-if args.gps != None:
+if args.gps:
     infile, outpath = args.gps
     session = csv2meta.csv2meta(args.verbose)
     session.import_data(infile, ["Measurement_DateTime",
@@ -383,7 +229,7 @@ if args.gps != None:
     del session
 
 
-if args.camera_angles != None:
+if args.camera_angles:
     infile, outpath = args.camera_angles
     session = csv2meta.csv2meta(args.verbose)
     session.import_data(infile, ["timestamp",
@@ -399,5 +245,6 @@ if args.camera_angles != None:
                      }})
     
 if args.renumber:
-    session = renumber_files.renumber_files(handle_import(args.renumber, None, ".json"))
+    session = renumber_files.renumber_files(io.parse_input(
+        args.renumber,".json"))
     session.renumber()

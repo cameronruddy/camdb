@@ -9,11 +9,10 @@ TIME_FORMAT = "%Y_%m_%d_%H_%M_%S_%f"
 def novel_dirname(root_dir):
     ### Make a novel directory name ###
     idx = 0
-    while idx > 10:
+    while idx < 10:
         this_dir = "{}/{}".format(root_dir, 
             (lambda dt : dt.strftime(TIME_FORMAT))(datetime.now()))
         if not os.path.isdir(this_dir):
-            os.makedirs(this_dir)
             return this_dir
         else:
             idx += 1
@@ -33,6 +32,8 @@ def parse_input(path, extension, *args):
     elif os.path.isfile(path):
         targets = [path]
         target_dirs = [os.path.dirname(path)]
+
+    return targets, target_dirs
 
 
 def parse_output(outdir, *args):

@@ -9,7 +9,7 @@ Many of these commands can be run on individual files or on whole directories. I
 
 `-a` `[CSV_FILE]` `[TARGET_DIR]` Appends camera angles to metadata files in the targeted directory. Requires 2 arguments, the CSV file containing camera poses and the target directory.
 
-`-b` Imports data from `.bag` files, a type of archive file used commonly in the Robot Operating System (ROS). `-b` must typically be run with `-c`, `-o`, and more optionally `-f`.
+`-b` Imports data from `.bag` files, a type of archive file used commonly in the Robot Operating System (ROS). `-b` must typically be run with `-c`, `-o`, and more optionally `-f`. Individual files can be provided or a directory can be provided, allowing for multiple files to be processed consecutively.
 
 `-c` Specifies a configuration file for any data import. While most imports *can* run with the default config, it is highly recommend to enter a custom config file in the `./config` directory. While the `-c` flag can accept a file from anywhere in the file system, keeping them in the `./config` directory can help reduce confusion.
 
@@ -36,4 +36,4 @@ Many of these commands can be run on individual files or on whole directories. I
 
 `-v` Add extra status messages.
 
-`-V` Import data from .mp4 files. Similar to `-b`, this command works best with the `-c`, `-o`, and `-f` flags defined.
+`-V` Import data from .mp4 files. Similar to `-b`, this command can be used on single files or directories and works best with the `-c`, `-o`, and `-f` flags defined.

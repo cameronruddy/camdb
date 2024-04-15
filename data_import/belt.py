@@ -5,8 +5,6 @@ from data_import import make_meta, make_label
 
 import color_scheme as clr
 
-
-
 class belt:
     item_paths = []
     out_paths = []
