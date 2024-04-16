@@ -48,7 +48,11 @@ parser.add_argument('-d',
 #TODO
 parser.add_argument('-D',
                     "--decimate_remove",
-                    help="Reduce the number of images in a dataset, deletes from provided dir")
+                    nargs=2,
+                    metavar=("[PATH]", "[DECIMATION_FACTOR]"),
+                    help="Reduce the number of images in a dataset, deletes from provided dir",
+                    action="store"
+                    )
 
 parser.add_argument('-f',
                     '--framestep',
@@ -147,13 +151,19 @@ elif args.video:
     print("Starting MP4 import...")
     config_file = io.handle_config(args.config)
     #start_datetime = input("Please provide start datetime [YYYY-MM-DD HH:MM:SS]: ")
-    if not args.framestep:
-        framestep = 1
-    else:
+    if args.framestep:
         framestep = args.framestep
+    else:
+        framestep = 1
+
+    # GoPro MP4s have extension in all caps for some reason
+    # Try that and if there's nothing try lower case extension
+    target_files, target_dirs = io.parse_input(args.video, ".MP4")
+    if target_files == []:
+        target_files, target_dirs = io.parse_input(args.video, ".mp4")
 
     reader = mp42img.mp42img(config_file,
-                             str(io.parse_input(args.video,".MP4")),
+                             target_files,
                              str(io.parse_output(args.outdir)),
                              args.verbose,
                              None,      # TODO: have this point to a path or user input
@@ -179,35 +189,45 @@ if args.metadata:
     )
     session.main_loop()
 
-## Decimate ##
-if args.decimate_copy:
-    data_path, decimation_factor = args.decimate
+## Decimate Copy ##
+if args.decimate_copy or args.decimate_remove:
+    try:
+        data_path, decimation_factor = args.decimate_copy
+    except TypeError:
+        data_path, decimation_factor = args.decimate_remove
+    
     session = dir_crawler.dir_crawler(data_path,
                                       "all",
                                       None
                                     )
     session.traverse()
     data_dirs = session.get_dirs()
-    base_dir = io.parse_output(args.outdir)
+    if args.decimate_copy:
+        base_dir = io.parse_output(args.outdir)
+    else:
+        base_dir = None
     run_idx = 0
     for this_dir in data_dirs:
         if args.verbose:
             print("{}Decimating{} {}...".format(
                 clr.HIGHLIGHT, clr.RESET, this_dir))
-        data_pruner.copy_decimate_multiple_filetypes(
-            this_dir, decimation_factor, os.path.join(base_dir, str(run_idx)))
+        
+        if args.decimate_copy:
+            data_pruner.decimate_multiple_filetypes(
+                this_dir, decimation_factor, os.path.join(base_dir, str(run_idx)))
+        elif args.decimate_remove:
+            data_pruner.decimate_multiple_filetypes(
+                this_dir, decimation_factor, None
+            )
         run_idx += 1
         if args.verbose:
             print("{}Decimated{} {} by a factor of {}".format(
                 clr.SUCCESS, clr.RESET, this_dir, decimation_factor
             ))
 
-if args.decimate_remove:
-    #TODO
-    pass
-
 if args.removepii:
     # TODO: make this more idiot (me) proof
+    # TODO: how to make this run without sudo
     
     rmpii = pii_remover.pii_remover(args.removepii)
     rmpii.iterate(args.outdir)
