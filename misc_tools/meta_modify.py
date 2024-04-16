@@ -85,15 +85,13 @@ class meta_modify:
             try:
                 filename = file_list[0]
             except IndexError:
-                print("{}Error{}: No metadata files found in {}{}{}".format(
-                    clr.ERROR, clr.RESET,
+                clr.print_error("No metadata files found in {}{}{}".format(
                     clr.HIGHLIGHT, target, clr.RESET
                 ))
                 sys.exit(1)
 
         if filename == "":
-            print("{}Error{}: {}{}{} is not a valid filename".format(
-                clr.ERROR, clr.CLEAR,
+            clr.print_error("{}{}{} is not a valid filename".format(
                 clr.HIGHLIGHT, filename, clr.CLEAR
             ))
             sys.exit(1)
@@ -195,15 +193,13 @@ class meta_modify:
             try:
                 filename = file_list[0]
             except IndexError:
-                print("{}Error{}: No metadata files found in {}{}{}".format(
-                    clr.ERROR, clr.RESET,
+                clr.print_error("No metadata files found in {}{}{}".format(
                     clr.HIGHLIGHT, target, clr.RESET
                 ))
                 sys.exit(1)
 
         if filename == "":
-            print("{}Error{}: {}{}{} is not a valid filename".format(
-                clr.ERROR, clr.CLEAR,
+            clr.print_error("{}{}{} is not a valid filename".format(
                 clr.HIGHLIGHT, filename, clr.CLEAR
             ))
             sys.exit(1)

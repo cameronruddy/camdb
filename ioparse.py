@@ -33,7 +33,7 @@ def parse_input(path, extension, *args):
         targets = [path]
         target_dirs = [os.path.dirname(path)]
     else:
-        clr.print_error("{} is not a valid directory".format(path))
+        clr.print_error("{} is not a valid directory or file".format(path))
         sys.exit(1)
     return targets, target_dirs
 

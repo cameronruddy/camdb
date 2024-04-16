@@ -1,4 +1,4 @@
-import colorama
+import colorama, sys
 
 ### Foreground Definitions ###
 ERROR = colorama.Fore.LIGHTRED_EX
@@ -25,6 +25,7 @@ def print_warning(msg):
     ))
 
 def print_error(msg):
-    print("{}Error{}: {}".format(
+    print("{}Fatal{}: {}".format(
         ERROR, RESET, msg
     ))
+    sys.exit(-1)

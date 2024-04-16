@@ -24,8 +24,7 @@ class bag_import(belt):
         try:
             return bagfile.get_start_time()
         except:
-            print("{}Error{}: Could not get timestamp from {}{}{}".format(
-                clr.ERROR, clr.RESET,
+            clr.print_error("Could not get timestamp from {}{}{}".format(
                 clr.HIGHLIGHT, bagfile, clr.RESET))
             return None
         

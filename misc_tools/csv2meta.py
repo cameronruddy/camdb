@@ -73,8 +73,7 @@ class csv2meta:
 
         # path is not valid, exit
         else:
-            print("{}Error{}: Supplied path {}{}{} is not a valid file or dictionary".format(
-                clr.ERROR, clr.RESET,
+            clr.print_error("Supplied path {}{}{} is not a valid file or dictionary".format(
                 clr.HIGHLIGHT, metapath, clr.RESET
             ))
             return 1    #TODO: handle this in main.py
@@ -92,8 +91,7 @@ class csv2meta:
             
             # Exit if the time ID is not in the provided metadata
             if out_time_ID not in current_metadata.keys():
-                print("{}Error{}: Provided key {}{}{} is not found in {}{}{}".format(
-                    clr.ERROR, clr.RESET,
+                clr.print_error("Provided key {}{}{} is not found in {}{}{}".format(
                     clr.HIGHLIGHT, out_time_ID, clr.RESET,
                     clr.HIGHLIGHT, out_path, clr.RESET
                 ))   
